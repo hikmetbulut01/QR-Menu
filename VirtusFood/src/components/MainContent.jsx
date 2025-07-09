@@ -1,0 +1,150 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { PlusIcon, ListIcon } from "lucide-react"
+import ProductList from "./products/ProductList"
+import AddEditProductForm from "./forms/AddEditProductForm"
+import { db } from "../lib/firebase"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
+
+const USER_COLLECTION = "users"
+const USER_DOC_ID = "wo3sXt15J6SRroEtmUxs"
+
+async function fetchProductsFromFirebase(category) {
+  const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
+  const userSnap = await getDoc(userDocRef)
+  if (userSnap.exists()) {
+    const categories = userSnap.data().categories || {}
+    const productsObj = categories[category] || {}
+    // Objeyi diziye çevir
+    return Object.values(productsObj)
+  }
+  return []
+}
+
+async function deleteProductFromFirebase(category, productId) {
+  const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
+  const userSnap = await getDoc(userDocRef)
+  if (userSnap.exists()) {
+    let categories = userSnap.data().categories || {}
+    if (categories[category] && categories[category][productId]) {
+      delete categories[category][productId]
+      await updateDoc(userDocRef, { categories })
+    }
+  }
+}
+
+export default function MainContent({
+  activeTab,
+  products,
+  setProducts,
+  selectedProduct,
+  setSelectedProduct,
+  setShowIngredients,
+  onShowMobileRightSidebar,
+}) {
+  const [showAddProduct, setShowAddProduct] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", image: null })
+
+  // Add new product
+  const handleAddProduct = async (product) => {
+    // Ürün Firestore'a AddEditProductForm'da kaydediliyor, burada tekrar eklemeye gerek yok
+    // Sadece Firestore'dan güncel ürünleri çek
+    if (activeTab) {
+      const productsArr = await fetchProductsFromFirebase(activeTab)
+      setProducts((prev) => ({ ...prev, [activeTab]: productsArr }))
+    }
+    setShowAddProduct(false)
+  }
+
+  // Update product
+  const handleUpdateProduct = async (updatedProduct) => {
+    // Ürün Firestore'a AddEditProductForm'da kaydediliyor, burada tekrar güncellemeye gerek yok
+    // Sadece Firestore'dan güncel ürünleri çek
+    if (activeTab) {
+      const productsArr = await fetchProductsFromFirebase(activeTab)
+      setProducts((prev) => ({ ...prev, [activeTab]: productsArr }))
+    }
+    setSelectedProduct(null)
+    setShowEditForm(false)
+  }
+
+  const handleDeleteProduct = async (product) => {
+    if (activeTab && product.id) {
+      await deleteProductFromFirebase(activeTab, product.id)
+      const productsArr = await fetchProductsFromFirebase(activeTab)
+      setProducts((prev) => ({ ...prev, [activeTab]: productsArr }))
+    }
+  }
+
+  const handleSelectProduct = (product) => {
+    setSelectedProduct(product)
+    setShowIngredients(true)
+  }
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product)
+    setShowEditForm(true)
+  }
+
+  useEffect(() => {
+    async function loadProducts() {
+      if (activeTab) {
+        const productsArr = await fetchProductsFromFirebase(activeTab)
+        setProducts((prev) => ({ ...prev, [activeTab]: productsArr }))
+      }
+    }
+    loadProducts()
+  }, [activeTab])
+
+  return (
+    <div className="flex-1 p-2 md:p0">
+      <div className="flex justify-between items-center mb-4 md:mb-6">
+        <h2 className="text-[#F5B93F] text-xl font-bold mt-0">{activeTab}</h2>
+        <div className="flex gap-2">
+          {selectedProduct && (
+            <button
+              className="md:hidden bg-[#3a3359] text-white px-3 py-1.5 rounded flex items-center gap-1"
+              onClick={onShowMobileRightSidebar}
+            >
+              <ListIcon className="w-4 h-4" /> Malzemeler
+            </button>
+          )}
+          <button
+            className="bg-[#F5B93F] text-black px-3 py-1.5 md:px-4 md:py-2 rounded flex items-center gap-1 md:gap-2 text-sm md:text-base"
+            onClick={() => {
+              setShowAddProduct(true)
+              setSelectedProduct(null)
+              setShowEditForm(false)
+              setNewProduct({ name: "", description: "", price: "", image: null })
+            }}
+          >
+            <PlusIcon className="w-4 h-4 md:w-5 md:h-5" /> YENİ ÜRÜN EKLE
+          </button>
+        </div>
+      </div>
+
+      {showAddProduct || showEditForm ? (
+        <AddEditProductForm
+          product={selectedProduct || newProduct}
+          onSave={showEditForm ? handleUpdateProduct : handleAddProduct}
+          onCancel={() => {
+            setShowAddProduct(false)
+            setShowEditForm(false)
+            setSelectedProduct(null)
+          }}
+          isEditing={showEditForm}
+          activeCategory={activeTab}
+        />
+      ) : (
+        <ProductList
+          products={products[activeTab] || []}
+          onEdit={handleEditProduct}
+          onDelete={handleDeleteProduct}
+          onSelect={handleSelectProduct}
+        />
+      )}
+    </div>
+  )
+}
