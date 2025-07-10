@@ -1,52 +1,26 @@
 "use client"
 
-import { useState } from "react"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import LeftSidebar from "@/components/LeftSidebar"
-import MainContent from "@/components/MainContent"
-import RightSidebar from "@/components/RightSidebar"
-import AllIngredientsSidebar from "@/components/sidebars/AllIngredientsSidebar"
-import FAQSidebar from "@/components/sidebars/FAQSidebar"
-import ProfileSidebar from "@/components/sidebars/ProfileSidebar"
-import MobileMenu from "@/components/MobileMenu"
+import { useState, useEffect } from "react"
+import Header from "../src/components/Header"
+import Footer from "../src/components/Footer"
+import LeftSidebar from "../src/components/LeftSidebar"
+import MainContent from "../src/components/MainContent"
+import RightSidebar from "../src/components/RightSidebar"
+import AllIngredientsSidebar from "../src/components/sidebars/AllIngredientsSidebar"
+import FAQSidebar from "../src/components/sidebars/FAQSidebar"
+import ProfileSidebar from "../src/components/sidebars/ProfileSidebar"
+import MobileMenu from "../src/components/MobileMenu"
+import { db } from "../src/lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
+
+const USER_COLLECTION = "users"
+const USER_DOC_ID = "wo3sXt15J6SRroEtmUxs"
 
 export default function VirtusFood() {
   // States
-  const [activeTab, setActiveTab] = useState("YIYECEKLER")
-  const [categories, setCategories] = useState(["İÇECEKLER", "YİYECEKLER", "TATILAR"])
-  const [products, setProducts] = useState({
-    YİYECEKLER: [
-      {
-        id: 1,
-        name: "Hamburger",
-        description: "Özel soslu hamburger",
-        price: 120,
-        ingredients: ["Köfte", "Domates", "Marul", "Soğan"],
-        image: null,
-      },
-      {
-        id: 2,
-        name: "Pizza",
-        description: "Karışık pizza",
-        price: 150,
-        ingredients: ["Sucuk", "Kaşar", "Mantar", "Biber"],
-        image: null,
-      },
-    ],
-    İÇECEKLER: [
-      { id: 3, name: "Kola", description: "Soğuk içecek", price: 30, ingredients: ["Kola"], image: null },
-      {
-        id: 4,
-        name: "Ayran",
-        description: "Soğuk içecek",
-        price: 20,
-        ingredients: ["Yoğurt", "Su", "Tuz"],
-        image: null,
-      },
-    ],
-    TATILAR: [],
-  })
+  const [activeTab, setActiveTab] = useState("")
+  const [categories, setCategories] = useState([])
+  const [products, setProducts] = useState({})
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showIngredients, setShowIngredients] = useState(false)
   const [showAllIngredientsSidebar, setShowAllIngredientsSidebar] = useState(false)
@@ -54,16 +28,48 @@ export default function VirtusFood() {
   const [showProfileSidebar, setShowProfileSidebar] = useState(false)
   const [showMobileRightSidebar, setShowMobileRightSidebar] = useState(false)
 
+  // Load data from Firebase
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
+        const userSnap = await getDoc(userDocRef)
+        
+        if (userSnap.exists()) {
+          const data = userSnap.data()
+          const categoriesData = data.categories || {}
+          const categoriesList = Object.keys(categoriesData)
+          
+          setCategories(categoriesList)
+          setProducts(categoriesData)
+          
+          // Set first category as active if no active tab
+          if (categoriesList.length > 0 && !activeTab) {
+            setActiveTab(categoriesList[0])
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data:", error)
+      }
+    }
+    
+    loadData()
+  }, [])
+
   // Get all unique ingredients
   const getAllIngredients = () => {
     const allIngredients = new Set()
 
     Object.values(products).forEach((categoryProducts) => {
-      categoryProducts.forEach((product) => {
-        product.ingredients.forEach((ingredient) => {
-          allIngredients.add(ingredient)
+      if (Array.isArray(categoryProducts)) {
+        categoryProducts.forEach((product) => {
+          if (product.ingredients) {
+            product.ingredients.forEach((ingredient) => {
+              allIngredients.add(ingredient)
+            })
+          }
         })
-      })
+      }
     })
 
     return Array.from(allIngredients).sort()
@@ -88,8 +94,6 @@ export default function VirtusFood() {
           <LeftSidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            categories={categories}
-            setCategories={setCategories}
             products={products}
             setProducts={setProducts}
           />
