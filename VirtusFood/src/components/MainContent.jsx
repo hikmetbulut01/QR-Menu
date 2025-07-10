@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { PlusIcon, ListIcon } from "lucide-react"
 import ProductList from "./products/ProductList"
 import AddEditProductForm from "./forms/AddEditProductForm"
+import ConfirmDialog from "./ui/ConfirmDialog"
 import { db } from "../lib/firebase"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 
@@ -46,6 +47,7 @@ export default function MainContent({
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", image: null })
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
 
   // Add new product
   const handleAddProduct = async (product) => {
@@ -75,7 +77,12 @@ export default function MainContent({
       await deleteProductFromFirebase(activeTab, product.id)
       const productsArr = await fetchProductsFromFirebase(activeTab)
       setProducts((prev) => ({ ...prev, [activeTab]: productsArr }))
+      setShowDeleteConfirm(null)
     }
+  }
+
+  const handleDeleteProductConfirm = (product) => {
+    setShowDeleteConfirm(product)
   }
 
   const handleSelectProduct = (product) => {
@@ -138,12 +145,35 @@ export default function MainContent({
           activeCategory={activeTab}
         />
       ) : (
-        <ProductList
-          products={products[activeTab] || []}
-          onEdit={handleEditProduct}
-          onDelete={handleDeleteProduct}
-          onSelect={handleSelectProduct}
-        />
+        <div className="relative">
+          <ProductList
+            products={products[activeTab] || []}
+            onEdit={handleEditProduct}
+            onDelete={handleDeleteProductConfirm}
+            onSelect={handleSelectProduct}
+          />
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-[#312a52] p-6 rounded-lg border border-[#3a3359] shadow-lg max-w-sm mx-4">
+                <p className="text-white text-lg mb-4">"{showDeleteConfirm.name}" ürününü silmek istediğinize emin misiniz?</p>
+                <div className="flex gap-3">
+                  <button 
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+                    onClick={() => handleDeleteProduct(showDeleteConfirm)}
+                  >
+                    Evet, Sil
+                  </button>
+                  <button 
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                    onClick={() => setShowDeleteConfirm(null)}
+                  >
+                    İptal
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

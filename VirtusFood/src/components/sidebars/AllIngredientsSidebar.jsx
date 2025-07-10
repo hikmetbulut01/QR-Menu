@@ -12,6 +12,7 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
   const [showAddPopup, setShowAddPopup] = useState(false)
   const [newIngredient, setNewIngredient] = useState("")
   const [allIngredients, setAllIngredients] = useState([])
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
 
   // Load ingredients from Firestore when component mounts
   useEffect(() => {
@@ -80,9 +81,14 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
       }
 
       setAllIngredients(updatedIngredients)
+      setShowDeleteConfirm(null)
     } catch (error) {
       console.error("Error deleting ingredient:", error)
     }
+  }
+
+  const handleDeleteIngredientConfirm = (ingredient) => {
+    setShowDeleteConfirm(ingredient)
   }
 
   return (
@@ -109,7 +115,7 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
                 <li key={idx} className="text-white py-2 border-b border-[#3a3359] flex justify-between items-center">
                   <span>{ingredient}</span>
                   <button
-                    onClick={() => handleDeleteIngredient(ingredient)}
+                    onClick={() => handleDeleteIngredientConfirm(ingredient)}
                     className="text-red-500 hover:text-red-400 transition-colors"
                   >
                     <TrashIcon className="w-4 h-4" />
@@ -147,6 +153,30 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
                 className="px-4 py-2 bg-[#F5B93F] text-[#272042] rounded-md hover:bg-[#e5a92f] transition-colors"
               >
                 Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Popup */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center">
+          <div className="bg-[#272042] p-6 rounded-lg w-[90%] max-w-[400px] border border-[#3a3359] shadow-lg">
+            <h3 className="text-[#F5B93F] text-xl font-bold mb-4">Malzeme Sil</h3>
+            <p className="text-white text-lg mb-6">"{showDeleteConfirm}" malzemesini silmek istediğinize emin misiniz?</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="px-4 py-2 text-white bg-[#3a3359] rounded-md hover:bg-[#4a4369] transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={() => handleDeleteIngredient(showDeleteConfirm)}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                Evet, Sil
               </button>
             </div>
           </div>
