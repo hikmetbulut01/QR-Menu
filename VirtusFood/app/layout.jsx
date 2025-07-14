@@ -3,7 +3,7 @@ import "./globals.css"
 export const metadata = {
   title: "Virtus Food",
   description: "Lezzetin QR Menüsü",
-    generator: 'v0.dev'
+    generator: 'Virtus Ar-Ge'
 }
 
 export default function RootLayout({ children }) {

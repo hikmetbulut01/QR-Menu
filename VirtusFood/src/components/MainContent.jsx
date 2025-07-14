@@ -151,6 +151,7 @@ export default function MainContent({
             onEdit={handleEditProduct}
             onDelete={handleDeleteProductConfirm}
             onSelect={handleSelectProduct}
+            activeTab={activeTab}
           />
           {showDeleteConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
