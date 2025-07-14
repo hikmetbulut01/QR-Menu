@@ -1,7 +1,12 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { XIcon } from "lucide-react"
+import { db } from "../../lib/firebase"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
+
+const USER_COLLECTION = "users"
+const USER_DOC_ID = "wo3sXt15J6SRroEtmUxs"
 
 export default function ProfileSidebar({ onClose }) {
   const [profile, setProfile] = useState({
@@ -11,6 +16,12 @@ export default function ProfileSidebar({ onClose }) {
     role: "Yönetici",
     photo: null,
   })
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState({
+    name: "Ahmet Yılmaz",
+    phone: "0555 123 4567",
+  })
+  const [isLoading, setIsLoading] = useState(false)
 
   const profilePhotoInputRef = useRef(null)
 
@@ -22,6 +33,92 @@ export default function ProfileSidebar({ onClose }) {
         setProfile({ ...profile, photo: reader.result })
       }
       reader.readAsDataURL(file)
+    }
+  }
+
+  const handleEditClick = () => {
+    setEditForm({
+      name: profile.name,
+      phone: profile.phone,
+    })
+    setIsEditing(true)
+  }
+
+  // Component yüklendiğinde profil bilgilerini çek
+  useEffect(() => {
+    loadProfileFromFirestore()
+  }, [])
+
+  const handleSaveProfile = async () => {
+    try {
+      const updatedProfile = {
+        ...profile,
+        name: editForm.name,
+        phone: editForm.phone,
+      }
+      
+      await saveProfileToFirestore(updatedProfile)
+      setProfile(updatedProfile)
+      setIsEditing(false)
+    } catch (error) {
+      console.error("Profil kaydedilirken hata:", error)
+      // Hata durumunda kullanıcıya bilgi verebilirsiniz
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+  }
+
+  const handleInputChange = (field, value) => {
+    setEditForm(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  // Firestore'dan profil bilgilerini çek
+  const loadProfileFromFirestore = async () => {
+    try {
+      const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
+      const userSnap = await getDoc(userDocRef)
+      
+      if (userSnap.exists()) {
+        const data = userSnap.data()
+        const userData = data.userData || {}
+        
+        setProfile(prev => ({
+          ...prev,
+          name: userData.name || "Ahmet Yılmaz",
+          phone: userData.phone || "0555 123 4567",
+          email: "ahmet@example.com", // Frontend'de sabit
+          role: "Yönetici", // Frontend'de sabit
+        }))
+      }
+    } catch (error) {
+      console.error("Profil bilgileri yüklenirken hata:", error)
+    }
+  }
+
+  // Profil bilgilerini Firestore'a kaydet
+  const saveProfileToFirestore = async (updatedProfile) => {
+    try {
+      setIsLoading(true)
+      const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
+      
+      await updateDoc(userDocRef, {
+        userData: {
+          name: updatedProfile.name,
+          phone: updatedProfile.phone,
+        }
+      })
+      
+      console.log("Profil başarıyla güncellendi")
+    } catch (error) {
+      console.error("Profil güncellenirken hata:", error)
+      throw error
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -61,7 +158,16 @@ export default function ProfileSidebar({ onClose }) {
           <div className="w-full space-y-2 md:space-y-3">
             <div>
               <label className="text-gray-400 text-xs">Ad Soyad</label>
-              <p className="text-white text-sm md:text-base">{profile.name}</p>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full bg-[#3a3359] text-white text-sm md:text-base p-2 rounded border border-[#4a4569] focus:border-[#F5B93F] focus:outline-none"
+                />
+              ) : (
+                <p className="text-white text-sm md:text-base">{profile.name}</p>
+              )}
             </div>
             <div>
               <label className="text-gray-400 text-xs">E-posta</label>
@@ -69,7 +175,16 @@ export default function ProfileSidebar({ onClose }) {
             </div>
             <div>
               <label className="text-gray-400 text-xs">Telefon</label>
-              <p className="text-white text-sm md:text-base">{profile.phone}</p>
+              {isEditing ? (
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="w-full bg-[#3a3359] text-white text-sm md:text-base p-2 rounded border border-[#4a4569] focus:border-[#F5B93F] focus:outline-none"
+                />
+              ) : (
+                <p className="text-white text-sm md:text-base">{profile.phone}</p>
+              )}
             </div>
             <div>
               <label className="text-gray-400 text-xs">Rol</label>
@@ -77,8 +192,33 @@ export default function ProfileSidebar({ onClose }) {
             </div>
 
             <div className="pt-4 space-y-2">
-              <button className="w-full bg-[#F5B93F] text-black p-2 rounded text-sm">Profili Güncelle</button>
-              <button className="w-full bg-[#3a3359] text-white p-2 rounded text-sm">Şifre Değiştir</button>
+              {isEditing ? (
+                <>
+                  <button 
+                    className="w-full bg-[#F5B93F] text-black p-2 rounded text-sm disabled:opacity-50"
+                    onClick={handleSaveProfile}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Kaydediliyor..." : "Kaydet"}
+                  </button>
+                  <button 
+                    className="w-full bg-[#3a3359] text-white p-2 rounded text-sm"
+                    onClick={handleCancelEdit}
+                  >
+                    İptal
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    className="w-full bg-[#F5B93F] text-black p-2 rounded text-sm"
+                    onClick={handleEditClick}
+                  >
+                    Profili Güncelle
+                  </button>
+                  <button className="w-full bg-[#3a3359] text-white p-2 rounded text-sm">Şifre Değiştir</button>
+                </>
+              )}
             </div>
           </div>
         </div>
