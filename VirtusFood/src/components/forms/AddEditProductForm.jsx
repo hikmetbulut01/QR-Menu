@@ -58,6 +58,15 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    
+    // Fiyat için negatif sayı kontrolü
+    if (name === 'price') {
+      const numValue = parseFloat(value)
+      if (numValue < 0) {
+        return // Negatif değer girilirse işlemi durdur
+      }
+    }
+    
     setFormData({ ...formData, [name]: value })
   }
 
@@ -99,46 +108,62 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
     const userSnap = await getDoc(userDocRef)
     let categories = userSnap.exists() ? (userSnap.data().categories || {}) : {}
 
-    // id ve name aynı olacak şekilde ayarla
-    const productId = productData.name.trim().toUpperCase()
-    const newProduct = { ...productData, id: productId, name: productId }
-
     // Kategori yoksa oluştur
     if (!categories[category]) categories[category] = {}
 
-    // Ürünü ekle/güncelle
-    categories[category][productId] = newProduct
+    if (isEditing && productData.id) {
+      // Güncelleme işlemi - mevcut ID'yi kullan
+      const updatedProduct = { ...productData }
+      categories[category][productData.id] = updatedProduct
+    } else {
+      // Yeni ürün ekleme - yeni ID oluştur
+      const productId = productData.name.trim().toUpperCase()
+      const newProduct = { ...productData, id: productId, name: productId }
+      categories[category][productId] = newProduct
+    }
 
     if (userSnap.exists()) {
       await updateDoc(userDocRef, { categories })
     } else {
       await setDoc(userDocRef, { categories })
     }
-    return productId
+    return productData.id || productData.name.trim().toUpperCase()
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (formData.name.trim() && formData.price && activeCategory) {
+      // Fiyat negatif mi kontrol et
+      const price = parseFloat(formData.price)
+      if (price < 0) {
+        alert("Fiyat negatif olamaz!")
+        return
+      }
+      
       const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
       const userSnap = await getDoc(userDocRef)
       let categories = userSnap.exists() ? (userSnap.data().categories || {}) : {}
 
-      // Check if product already exists in the category
-      if (categories[activeCategory] && categories[activeCategory][formData.name]) {
-        alert("Bu isimde bir ürün zaten mevcut!")
-        return
+      if (isEditing) {
+        // Güncelleme işlemi - sadece aynı ID'deki ürünü güncelle
+        const productId = await saveProductToFirebase(activeCategory, formData)
+        onSave({ ...formData, id: productId })
+      } else {
+        // Yeni ürün ekleme - aynı isimde ürün var mı kontrol et
+        if (categories[activeCategory] && categories[activeCategory][formData.name.trim().toUpperCase()]) {
+          alert("Bu isimde bir ürün zaten mevcut!")
+          return
+        }
+        const productId = await saveProductToFirebase(activeCategory, formData)
+        onSave({ ...formData, id: productId })
       }
-
-      const productId = await saveProductToFirebase(activeCategory, formData)
-      onSave({ ...formData, id: productId })
     }
   }
 
   return (
     <Card>
-      <h3 className="text-[#F5B93F] text-base md:text-lg mb-4 md:mb-6">
-        {isEditing ? "Ürün Düzenle" : "Yeni Ürün Ekle"}
+      <h3 className="text-[#F5B93F] text-base md:text-lg mb-4 md:mb-6 break-words">
+        {isEditing ? `Ürün Düzenle: ${product.name || 'Bilinmeyen Ürün'}` : "Yeni Ürün Ekle"}
       </h3>
 
       <form onSubmit={handleSubmit}>
@@ -167,6 +192,8 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
           placeholder="Ürün fiyatı"
           value={formData.price}
           onChange={handleChange}
+          min="0"
+          step="0.01"
           required
         />
 
