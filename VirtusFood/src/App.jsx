@@ -22,6 +22,8 @@ function App() {
   const [showFAQSidebar, setShowFAQSidebar] = useState(false)
   const [showProfileSidebar, setShowProfileSidebar] = useState(false)
   const [showMobileRightSidebar, setShowMobileRightSidebar] = useState(false)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false)
 
   // Get all unique ingredients
   const getAllIngredients = () => {
@@ -38,6 +40,15 @@ function App() {
     return Array.from(allIngredients).sort()
   }
 
+  // Kategori değiştirme kontrolü
+  const handleCategoryChange = (newCategory) => {
+    if (isFormOpen) {
+      setShowCategoryChangeWarning(true)
+    } else {
+      setActiveTab(newCategory)
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#272042]">
       <Header
@@ -49,14 +60,14 @@ function App() {
       <div className="flex flex-col md:flex-row flex-1">
         {/* Mobile Menu */}
         <div className="p-4 md:hidden">
-          <MobileMenu activeTab={activeTab} setActiveTab={setActiveTab} categories={categories} />
+          <MobileMenu activeTab={activeTab} setActiveTab={handleCategoryChange} categories={categories} />
         </div>
 
         {/* Left Sidebar - Hidden on mobile */}
         <div className="hidden md:block">
           <LeftSidebar
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleCategoryChange}
             categories={categories}
             setCategories={setCategories}
             products={products}
@@ -77,6 +88,7 @@ function App() {
               setShowMobileRightSidebar(true)
             }
           }}
+          setIsFormOpen={setIsFormOpen}
         />
 
         {/* Right Sidebar - Hidden on mobile unless explicitly shown */}
@@ -116,6 +128,24 @@ function App() {
       {showFAQSidebar && <FAQSidebar onClose={() => setShowFAQSidebar(false)} />}
 
       {showProfileSidebar && <ProfileSidebar onClose={() => setShowProfileSidebar(false)} />}
+
+      {/* Kategori Değiştirme Uyarısı */}
+      {showCategoryChangeWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#312a52] p-6 rounded-lg border border-[#3a3359] shadow-lg max-w-sm mx-4">
+            <h3 className="text-[#F5B93F] text-xl font-bold mb-4">Uyarı</h3>
+            <p className="text-white text-lg mb-6">Ürün eklerken kategori değiştiremezsiniz!</p>
+            <div className="flex justify-end">
+              <button 
+                className="bg-[#F5B93F] text-black px-4 py-2 rounded hover:bg-[#e5a92f] transition-colors"
+                onClick={() => setShowCategoryChangeWarning(false)}
+              >
+                Tamam
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
