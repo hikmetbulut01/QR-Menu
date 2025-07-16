@@ -43,11 +43,17 @@ export default function MainContent({
   setSelectedProduct,
   setShowIngredients,
   onShowMobileRightSidebar,
+  setIsFormOpen,
 }) {
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", image: null })
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
+
+  // Form durumunu takip et
+  useEffect(() => {
+    setIsFormOpen(showAddProduct || showEditForm)
+  }, [showAddProduct, showEditForm, setIsFormOpen])
 
   // Add new product
   const handleAddProduct = async (product) => {
@@ -106,7 +112,7 @@ export default function MainContent({
   }, [activeTab])
 
   return (
-    <div className="flex-1 p-2 md:p0">
+    <div className="flex-1 p-2 md:p0 w-full max-w-full overflow-hidden">
       <div className="flex justify-between items-center mb-4 md:mb-6">
         <h2 className="text-[#F5B93F] text-xl font-bold mt-0">{activeTab}</h2>
         <div className="flex gap-2">
@@ -145,7 +151,7 @@ export default function MainContent({
           activeCategory={activeTab}
         />
       ) : (
-        <div className="relative">
+        <div className="relative w-full max-w-full overflow-hidden">
           <ProductList
             products={products[activeTab] || []}
             onEdit={handleEditProduct}

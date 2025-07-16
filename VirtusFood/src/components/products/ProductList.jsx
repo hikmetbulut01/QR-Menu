@@ -18,7 +18,7 @@ export default function ProductList({ products, onEdit, onDelete, onSelect, acti
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full max-w-full overflow-hidden">
       {products.map((product) => (
         <ProductCard
           key={product.id}

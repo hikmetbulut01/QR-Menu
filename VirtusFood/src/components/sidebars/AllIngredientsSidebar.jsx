@@ -93,14 +93,14 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex">
-      <div className="ml-auto w-[80%] max-w-[300px] bg-[#272042] h-full overflow-y-auto">
+      <div className="ml-auto w-[80%] max-w-[300px] bg-[#272042] h-full overflow-y-auto overflow-x-hidden">
         <div className="p-4 flex justify-between items-center border-b border-[#3a3359]">
-          <h2 className="text-[#F5B93F] text-lg md:text-xl font-bold">TÜM MALZEMELER</h2>
-          <button className="text-white" onClick={onClose}>
+          <h2 className="text-[#F5B93F] text-lg md:text-xl font-bold break-words">TÜM MALZEMELER</h2>
+          <button className="text-white flex-shrink-0" onClick={onClose}>
             <XIcon className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-4">
+        <div className="p-4 w-full">
           <button
             onClick={() => setShowAddPopup(true)}
             className="w-full mb-4 bg-[#F5B93F] text-[#272042] py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:bg-[#e5a92f] transition-colors"
@@ -110,13 +110,13 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
           </button>
 
           {allIngredients.length > 0 ? (
-            <ul>
+            <ul className="w-full">
               {allIngredients.map((ingredient, idx) => (
-                <li key={idx} className="text-white py-2 border-b border-[#3a3359] flex justify-between items-center">
-                  <span>{ingredient}</span>
+                <li key={idx} className="text-white py-2 border-b border-[#3a3359] flex justify-between items-start gap-2 w-full">
+                  <span className="flex-1 break-words overflow-hidden" style={{ wordBreak: 'break-word' }}>{ingredient}</span>
                   <button
                     onClick={() => handleDeleteIngredientConfirm(ingredient)}
-                    className="text-red-500 hover:text-red-400 transition-colors"
+                    className="text-red-500 hover:text-red-400 transition-colors flex-shrink-0"
                   >
                     <TrashIcon className="w-4 h-4" />
                   </button>
@@ -124,7 +124,7 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
               ))}
             </ul>
           ) : (
-            <p className="text-white text-center">Henüz malzeme bulunmuyor.</p>
+            <p className="text-white text-center break-words">Henüz malzeme bulunmuyor.</p>
           )}
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
       {showAddPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
           <div className="bg-[#272042] p-6 rounded-lg w-[90%] max-w-[400px]">
-            <h3 className="text-[#F5B93F] text-xl font-bold mb-4">Yeni Malzeme Ekle</h3>
+            <h3 className="text-[#F5B93F] text-xl font-bold mb-4 break-words">Yeni Malzeme Ekle</h3>
             <input
               type="text"
               value={newIngredient}
@@ -163,8 +163,8 @@ export default function AllIngredientsSidebar({ ingredients, onClose }) {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center">
           <div className="bg-[#272042] p-6 rounded-lg w-[90%] max-w-[400px] border border-[#3a3359] shadow-lg">
-            <h3 className="text-[#F5B93F] text-xl font-bold mb-4">Malzeme Sil</h3>
-            <p className="text-white text-lg mb-6">"{showDeleteConfirm}" malzemesini silmek istediğinize emin misiniz?</p>
+            <h3 className="text-[#F5B93F] text-xl font-bold mb-4 break-words">Malzeme Sil</h3>
+            <p className="text-white text-lg mb-6 break-words">"{showDeleteConfirm}" malzemesini silmek istediğinize emin misiniz?</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(null)}

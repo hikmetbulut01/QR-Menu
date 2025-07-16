@@ -16,19 +16,19 @@ export default function AddCategoryForm({ onAdd, onCancel }) {
   }
 
   return (
-    <div className="bg-[#312a52] p-3 rounded">
-      <form onSubmit={handleSubmit}>
+    <div className="bg-[#312a52] p-3 rounded w-full overflow-hidden">
+      <form onSubmit={handleSubmit} className="w-full">
         <Input
           value={newCategory}
           onChange={(e) => setNewCategory(e.target.value)}
           placeholder="Kategori adı"
-          className="mb-2"
+          className="mb-2 w-full"
         />
-        <div className="flex gap-2">
-          <Button type="submit" variant="primary" className="flex-1">
+        <div className="flex gap-2 w-full">
+          <Button type="submit" variant="primary" className="flex-1 break-words">
             Ekle
           </Button>
-          <Button type="button" variant="cancel" className="flex-1" onClick={onCancel}>
+          <Button type="button" variant="cancel" className="flex-1 break-words" onClick={onCancel}>
             İptal
           </Button>
         </div>

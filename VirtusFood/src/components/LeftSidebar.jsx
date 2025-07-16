@@ -84,21 +84,22 @@ export default function LeftSidebar({ activeTab, setActiveTab, products, setProd
   }
 
   return (
-    <div className="w-[300px] border-r border-[#3a3359]">
+    <div className="w-[300px] border-r border-[#3a3359] overflow-hidden">
       <div className="p-4 text-center border-b border-[#3a3359]">
-        <h2 className="text-[#F5B93F] text-xl font-bold">MENÜ</h2>
+        <h2 className="text-[#F5B93F] text-xl font-bold break-words">MENÜ</h2>
       </div>
-      <nav>
+      <nav className="w-full">
         {categories.map((category) => (
-          <div key={category} className="relative">
+          <div key={category} className="relative w-full">
             <button
-              className={`w-full p-4 text-left border-b border-[#3a3359] ${activeTab === category ? "bg-[#F26241] text-white" : "text-white"}`}
+              className={`w-full p-4 text-left border-b border-[#3a3359] ${activeTab === category ? "bg-[#F26241] text-white" : "text-white"} break-words overflow-hidden`}
               onClick={() => setActiveTab(category)}
+              style={{ wordBreak: 'break-word' }}
             >
               {category}
             </button>
             <button
-              className="absolute right-3 top-4 text-white hover:text-red-400"
+              className="absolute right-3 top-4 text-white hover:text-red-400 flex-shrink-0"
               onClick={() => setShowDeleteConfirm(category)}
             >
               <TrashIcon className="w-4 h-4" />
@@ -113,7 +114,7 @@ export default function LeftSidebar({ activeTab, setActiveTab, products, setProd
           </div>
         ))}
       </nav>
-      <div className="p-4">
+      <div className="p-4 w-full">
         {showAddCategory ? (
           <AddCategoryForm
             onAdd={handleAddCategory}
@@ -121,10 +122,10 @@ export default function LeftSidebar({ activeTab, setActiveTab, products, setProd
           />
         ) : (
           <button
-            className="w-full bg-[#F26241] text-white p-3 rounded flex items-center justify-center gap-2"
+            className="w-full bg-[#F26241] text-white p-3 rounded flex items-center justify-center gap-2 break-words"
             onClick={() => setShowAddCategory(true)}
           >
-            <PlusIcon className="w-5 h-5" /> YENİ KATEGORİ EKLE
+            <PlusIcon className="w-5 h-5 flex-shrink-0" /> <span className="break-words">YENİ KATEGORİ EKLE</span>
           </button>
         )}
       </div>
