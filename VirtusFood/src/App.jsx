@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
 import LeftSidebar from "./components/LeftSidebar"
@@ -10,6 +10,11 @@ import AllIngredientsSidebar from "./components/sidebars/AllIngredientsSidebar"
 import FAQSidebar from "./components/sidebars/FAQSidebar"
 import ProfileSidebar from "./components/sidebars/ProfileSidebar"
 import MobileMenu from "./components/MobileMenu"
+import { db } from "./lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
+
+const USER_COLLECTION = "users"
+const USER_DOC_ID = "wo3sXt15J6SRroEtmUxs"
 
 function App() {
   // States
@@ -24,6 +29,28 @@ function App() {
   const [showMobileRightSidebar, setShowMobileRightSidebar] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [showCategoryChangeWarning, setShowCategoryChangeWarning] = useState(false)
+
+  // Load categories from Firebase
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
+        const userSnap = await getDoc(userDocRef)
+        if (userSnap.exists()) {
+          const data = userSnap.data()
+          const categoryList = Object.keys(data.categories || {})
+          setCategories(categoryList)
+          // Set first category as active if none selected
+          if (!activeTab && categoryList.length > 0) {
+            setActiveTab(categoryList[0])
+          }
+        }
+      } catch (error) {
+        console.error("Error loading categories:", error)
+      }
+    }
+    loadCategories()
+  }, []) // Remove activeTab dependency to prevent infinite loop
 
   // Get all unique ingredients
   const getAllIngredients = () => {
@@ -102,7 +129,7 @@ function App() {
             ></div>
           )}
           <div
-            className={`${showMobileRightSidebar ? "absolute right-0 top-0 bottom-0 w-[80%] max-w-[300px] md:relative md:w-[300px]" : "w-[300px]"}`}
+            className={`${showMobileRightSidebar ? "absolute right-0 top-0 bottom-0 w-[85%] max-w-[320px] md:relative md:w-[300px]" : "w-[300px]"}`}
           >
             <RightSidebar
               selectedProduct={selectedProduct}

@@ -199,11 +199,11 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
 
         <div className="mb-4">
           <label className="block text-white mb-2 text-sm md:text-base">Malzemeler</label>
-          <div className="flex flex-wrap gap-2 mb-2">
+          <div className="flex flex-wrap gap-1 md:gap-2 mb-2">
             {formData.ingredients.map((ingredient, idx) => (
               <span
                 key={idx}
-                className="bg-[#3a3359] text-white px-2 py-1 rounded-md text-sm flex items-center gap-1"
+                className="bg-[#3a3359] text-white px-1 md:px-2 py-1 rounded-md text-xs md:text-sm flex items-center gap-1"
               >
                 {ingredient}
                 <button
@@ -211,7 +211,7 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
                   onClick={() => handleRemoveIngredient(ingredient)}
                   className="text-red-400 hover:text-red-300"
                 >
-                  <XIcon className="w-3 h-3" />
+                  <XIcon className="w-2 h-2 md:w-3 md:h-3" />
                 </button>
               </span>
             ))}
@@ -219,16 +219,16 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
           <button
             type="button"
             onClick={() => setShowIngredientPopup(true)}
-            className="w-full bg-[#3a3359] text-white py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:bg-[#4a4369] transition-colors"
+            className="w-full bg-[#3a3359] text-white py-2 px-3 md:px-4 rounded-md flex items-center justify-center gap-1 md:gap-2 hover:bg-[#4a4369] transition-colors text-sm md:text-base"
           >
-            <PlusIcon className="w-4 h-4" />
+            <PlusIcon className="w-3 h-3 md:w-4 md:h-4" />
             <span>Malzeme Ekle</span>
           </button>
         </div>
 
         <div className="mb-4 md:mb-6">
           <label className="block text-white mb-1 md:mb-2 text-sm md:text-base">Görsel</label>
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
             <div className="w-16 h-16 md:w-20 md:h-20 bg-[#3a3359] rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
               {imagePreview ? (
                 <img src={imagePreview || "/placeholder.svg"} alt="Önizleme" className="w-full h-full object-cover" />
@@ -241,12 +241,12 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="flex-1 p-2 md:p-3 rounded bg-[#3a3359] text-white text-xs md:text-sm file:mr-2 md:file:mr-4 file:py-1 md:file:py-2 file:px-2 md:file:px-4 file:rounded file:border-0 file:bg-[#F5B93F] file:text-black file:text-xs md:file:text-sm"
+              className="flex-1 p-2 md:p-3 rounded bg-[#3a3359] text-white text-xs md:text-sm file:mr-2 md:file:mr-4 file:py-1 md:file:py-2 file:px-2 md:file:px-4 file:rounded file:border-0 file:bg-[#F5B93F] file:text-black file:text-xs md:file:text-sm w-full"
             />
           </div>
         </div>
 
-        <div className="flex gap-3 md:gap-4">
+        <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
           <Button type="submit" variant="primary" className="flex-1">
             {isEditing ? "Güncelle" : "Ekle"}
           </Button>
@@ -258,10 +258,10 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
 
       {/* Malzeme Seçme Popup */}
       {showIngredientPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
-          <div className="bg-[#272042] p-6 rounded-lg w-[90%] max-w-[400px] max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-[#272042] p-4 md:p-6 rounded-lg w-full max-w-[400px] max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-[#F5B93F] text-xl font-bold">Malzeme Seç</h3>
+              <h3 className="text-[#F5B93F] text-lg md:text-xl font-bold">Malzeme Seç</h3>
               <button
                 onClick={() => {
                   setShowIngredientPopup(false)
@@ -269,7 +269,7 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
                 }}
                 className="text-white hover:text-gray-300"
               >
-                <XIcon className="w-5 h-5" />
+                <XIcon className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
 
@@ -279,9 +279,9 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Malzeme ara..."
-                className="w-full p-2 pl-10 bg-[#3a3359] text-white rounded-md border border-[#4a4369] focus:outline-none focus:border-[#F5B93F]"
+                className="w-full p-2 pl-8 md:pl-10 bg-[#3a3359] text-white rounded-md border border-[#4a4369] focus:outline-none focus:border-[#F5B93F] text-sm md:text-base"
               />
-              <SearchIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <SearchIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-400 absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2" />
             </div>
 
             <div className="space-y-2">
@@ -294,13 +294,13 @@ export default function AddEditProductForm({ product, onSave, onCancel, isEditin
                       setShowIngredientPopup(false)
                       setSearchQuery("")
                     }}
-                    className="w-full text-left bg-[#3a3359] text-white p-3 rounded-md hover:bg-[#4a4369] transition-colors"
+                    className="w-full text-left bg-[#3a3359] text-white p-2 md:p-3 rounded-md hover:bg-[#4a4369] transition-colors text-sm md:text-base break-words"
                   >
                     {ingredient}
                   </button>
                 ))
               ) : (
-                <p className="text-white text-center">Malzeme bulunamadı.</p>
+                <p className="text-white text-center text-sm md:text-base">Malzeme bulunamadı.</p>
               )}
             </div>
           </div>

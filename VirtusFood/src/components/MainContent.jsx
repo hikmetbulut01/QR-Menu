@@ -111,10 +111,10 @@ export default function MainContent({
     )
   )
 
-  // Truncate category name to 12 characters
+  // category name to 12 characters
   const truncateCategoryName = (name) => {
     if (!name) return ""
-    return name.length > 20 ? name.substring(0, 20) + "..." : name
+    return name.length > 12 ? name.substring(0, 12) + "..." : name
   }
 
   useEffect(() => {
@@ -128,39 +128,41 @@ export default function MainContent({
   }, [activeTab])
 
   return (
-    <div className="flex-1 p-2 md:p0 w-full max-w-full overflow-hidden">
-      <div className="flex justify-between items-center mb-4 md:mb-6">
-        <h2 className="text-[#F5B93F] text-xl font-bold mt-0 w-24 flex-shrink-0">{truncateCategoryName(activeTab)}</h2>
-        <div className="flex gap-2">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Ürün ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-[200px] bg-[#3a3359] text-white px-10 py-2 rounded-md border border-[#4a4369] focus:outline-none focus:border-[#F5B93F] placeholder-gray-400"
-            />
+    <div className="flex-1 p-2 md:p-4 w-full max-w-full overflow-hidden">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 mb-4 md:mb-6">
+        <h2 className="text-[#F5B93F] text-lg md:text-xl font-bold mt-0 w-full md:w-24 flex-shrink-0">{truncateCategoryName(activeTab)}</h2>
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+          <div className="flex flex-row gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Ürün ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-[150px] md:w-[200px] bg-[#3a3359] text-white px-8 md:px-10 py-2 rounded-md border border-[#4a4369] focus:outline-none focus:border-[#F5B93F] placeholder-gray-400 text-sm md:text-base"
+              />
+            </div>
+            <button
+              className="bg-[#F5B93F] text-black px-3 py-1.5 md:px-4 md:py-2 rounded flex items-center gap-1 md:gap-2 text-sm md:text-base whitespace-nowrap justify-center flex-shrink-0"
+              onClick={() => {
+                setShowAddProduct(true)
+                setSelectedProduct(null)
+                setShowEditForm(false)
+                setNewProduct({ name: "", description: "", price: "", image: null })
+              }}
+            >
+              <PlusIcon className="w-4 h-4 md:w-5 md:h-5" /> <span className="hidden sm:inline">YENİ ÜRÜN EKLE</span><span className="sm:hidden">EKLE</span>
+            </button>
           </div>
           {selectedProduct && (
             <button
-              className="md:hidden bg-[#3a3359] text-white px-3 py-1.5 rounded flex items-center gap-1"
+              className="md:hidden bg-[#3a3359] text-white px-3 py-1.5 rounded flex items-center gap-1 justify-center w-full sm:w-auto"
               onClick={onShowMobileRightSidebar}
             >
               <ListIcon className="w-4 h-4" /> Malzemeler
             </button>
           )}
-          <button
-            className="bg-[#F5B93F] text-black px-3 py-1.5 md:px-4 md:py-2 rounded flex items-center gap-1 md:gap-2 text-sm md:text-base"
-            onClick={() => {
-              setShowAddProduct(true)
-              setSelectedProduct(null)
-              setShowEditForm(false)
-              setNewProduct({ name: "", description: "", price: "", image: null })
-            }}
-          >
-            <PlusIcon className="w-4 h-4 md:w-5 md:h-5" /> YENİ ÜRÜN EKLE
-          </button>
         </div>
       </div>
 

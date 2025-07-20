@@ -10,29 +10,9 @@ import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore"
 const USER_COLLECTION = "users"
 const USER_DOC_ID = "wo3sXt15J6SRroEtmUxs"
 
-export default function LeftSidebar({ activeTab, setActiveTab, products, setProducts }) {
+export default function LeftSidebar({ activeTab, setActiveTab, products, setProducts, categories, setCategories }) {
   const [showAddCategory, setShowAddCategory] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
-  const [categories, setCategories] = useState([])
-
-  // Kategorileri yükle
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const userDocRef = doc(db, USER_COLLECTION, USER_DOC_ID)
-        const userSnap = await getDoc(userDocRef)
-        if (userSnap.exists()) {
-          const data = userSnap.data()
-          setCategories(Object.keys(data.categories || {}))
-        } else {
-          setCategories([])
-        }
-      } catch (error) {
-        console.error("Error loading categories:", error)
-      }
-    }
-    loadCategories()
-  }, [])
 
   // Kategori ekle
   const handleAddCategory = async (category) => {
@@ -91,13 +71,13 @@ export default function LeftSidebar({ activeTab, setActiveTab, products, setProd
       <nav className="w-full">
         {categories.map((category) => (
           <div key={category} className="relative w-full">
-            <button
-              className={`w-full p-4 text-left border-b border-[#3a3359] ${activeTab === category ? "bg-[#F26241] text-white" : "text-white"} break-words overflow-hidden`}
-              onClick={() => setActiveTab(category)}
-              style={{ wordBreak: 'break-word' }}
-            >
-              {category}
-            </button>
+                    <button
+          className={`w-full p-3 md:p-4 text-left border-b border-[#3a3359] ${activeTab === category ? "bg-[#F26241] text-white" : "text-white"} break-words overflow-hidden text-sm md:text-base`}
+          onClick={() => setActiveTab(category)}
+          style={{ wordBreak: 'break-word' }}
+        >
+          {category}
+        </button>
             <button
               className="absolute right-3 top-4 text-white hover:text-red-400 flex-shrink-0"
               onClick={() => setShowDeleteConfirm(category)}
@@ -122,10 +102,10 @@ export default function LeftSidebar({ activeTab, setActiveTab, products, setProd
           />
         ) : (
           <button
-            className="w-full bg-[#F26241] text-white p-3 rounded flex items-center justify-center gap-2 break-words"
+            className="w-full bg-[#F26241] text-white p-2 md:p-3 rounded flex items-center justify-center gap-1 md:gap-2 break-words text-sm md:text-base"
             onClick={() => setShowAddCategory(true)}
           >
-            <PlusIcon className="w-5 h-5 flex-shrink-0" /> <span className="break-words">YENİ KATEGORİ EKLE</span>
+            <PlusIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" /> <span className="break-words">YENİ KATEGORİ EKLE</span>
           </button>
         )}
       </div>

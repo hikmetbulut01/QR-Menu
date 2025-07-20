@@ -14,7 +14,14 @@ export default function RightSidebar({
     >
       <div className="p-4 flex justify-between items-center border-b border-[#3a3359]">
         <h2 className="text-[#F5B93F] text-lg md:text-xl font-bold break-words">MALZEMELER</h2>
-
+        {isMobile && (
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-300 p-1"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       <div className="p-4 overflow-y-auto h-[calc(100%-64px)] w-full">
